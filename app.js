@@ -1,17 +1,9 @@
-// ── Config ────────────────────────────────────────────────────────────────────
-// Replace these two values after you create your Supabase project.
-// Settings → API → Project URL and anon/public key.
-const SUPABASE_URL  = 'https://rgvunsbvqlubddpwjeyo.supabase.co';
-const SUPABASE_KEY  = 'sb_publishable_yoHMR2HA4SZZuzvuWXjxew_eY1CJDHe';
-
 // ── Fetch ─────────────────────────────────────────────────────────────────────
 async function fetchSessions() {
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/sessions?select=*&order=date.desc`,
-    { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
-  );
-  if (!res.ok) throw new Error(`Supabase error: ${res.status}`);
-  return res.json();
+  const res = await fetch('data.json');
+  if (!res.ok) throw new Error('Could not load data.json');
+  const rows = await res.json();
+  return rows.slice().sort((a, b) => b.date.localeCompare(a.date));
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
