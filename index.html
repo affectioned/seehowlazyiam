@@ -26,21 +26,18 @@
     .heatmap-day[data-level="3"] { background: var(--g3); }
     .heatmap-day[data-level="4"] { background: var(--g4); }
 
-    .heatmap-day:hover::after {
-      content: attr(data-tip);
-      position: absolute;
-      bottom: calc(100% + 6px);
-      left: 50%;
-      transform: translateX(-50%);
+    #heatmap-tooltip {
+      position: fixed;
       background: #18181b;
       color: #e4e4e7;
       border: 1px solid #3f3f46;
       font-size: 0.7rem;
       white-space: nowrap;
-      padding: 3px 8px;
+      padding: 4px 9px;
       border-radius: 5px;
       pointer-events: none;
-      z-index: 10;
+      z-index: 1000;
+      display: none;
     }
 
     .heatmap-scroll {
@@ -123,27 +120,29 @@
       </div>
     </div>
 
-    <!-- Charts row -->
+    <!-- Charts 2x2 grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
 
-      <!-- Last 30 days steps -->
       <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
         <div class="text-xs text-zinc-500 uppercase tracking-widest font-semibold mb-4">Steps — last 30 days</div>
         <canvas id="chart-30days" height="180"></canvas>
       </div>
 
-      <!-- Monthly steps this year -->
       <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
         <div class="text-xs text-zinc-500 uppercase tracking-widest font-semibold mb-4">Steps — by month this year</div>
         <canvas id="chart-monthly" height="180"></canvas>
       </div>
 
-    </div>
+      <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+        <div class="text-xs text-zinc-500 uppercase tracking-widest font-semibold mb-4">Calories — last 30 days</div>
+        <canvas id="chart-calories" height="180"></canvas>
+      </div>
 
-    <!-- Weekly distance -->
-    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 mb-4">
-      <div class="text-xs text-zinc-500 uppercase tracking-widest font-semibold mb-4">Distance — last 12 weeks (km)</div>
-      <canvas id="chart-distance" height="120"></canvas>
+      <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+        <div class="text-xs text-zinc-500 uppercase tracking-widest font-semibold mb-4">Distance — last 12 weeks (km)</div>
+        <canvas id="chart-distance" height="180"></canvas>
+      </div>
+
     </div>
 
     <!-- Evidence table -->
@@ -171,6 +170,7 @@
 
   </div>
 
+  <div id="heatmap-tooltip"></div>
   <script src="app.js"></script>
 </body>
 </html>

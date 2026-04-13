@@ -239,6 +239,24 @@ function makeLine(id, labels, data, color = '#22c55e', label = '') {
   });
 }
 
+// ── Heatmap tooltip (JS-based, avoids overflow clipping) ─────────────────────
+function initTooltip() {
+  const tip = document.getElementById('heatmap-tooltip');
+  document.getElementById('heatmap').addEventListener('mouseover', e => {
+    const day = e.target.closest('.heatmap-day');
+    if (!day || !day.dataset.tip) return;
+    tip.textContent = day.dataset.tip;
+    tip.style.display = 'block';
+  });
+  document.getElementById('heatmap').addEventListener('mousemove', e => {
+    tip.style.left = (e.clientX + 12) + 'px';
+    tip.style.top  = (e.clientY - 32) + 'px';
+  });
+  document.getElementById('heatmap').addEventListener('mouseleave', () => {
+    tip.style.display = 'none';
+  });
+}
+
 // ── Charts ────────────────────────────────────────────────────────────────────
 function renderCharts(sessions) {
   const byDate = {};
@@ -270,6 +288,15 @@ function renderCharts(sessions) {
   });
   const currentMonth = today.getMonth();
   makeBar('chart-monthly', MONTHS.slice(0, currentMonth + 1), monthData.slice(0, currentMonth + 1), '#16a34a', 'Steps');
+
+  // ── Last 30 days calories (bar) ───────────────────────────────────────────
+  const cal30data = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    cal30data.push(byDate[toDateStr(d)]?.calories || 0);
+  }
+  makeBar('chart-calories', days30labels, cal30data, '#f97316', 'Calories');
 
   // ── Weekly distance last 12 weeks (line) ──────────────────────────────────
   const weekLabels = [], weekDist = [];
@@ -338,6 +365,7 @@ async function init() {
     renderFreshness(sessions);
     renderStats(sessions);
     renderHeatmap(sessions);
+    initTooltip();
     renderCharts(sessions);
     renderTable(sessions);
   } catch (err) {
