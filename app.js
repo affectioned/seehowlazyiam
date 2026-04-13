@@ -189,27 +189,146 @@ function renderHeatmap(sessions) {
   }
 }
 
+// ── Chart helpers ─────────────────────────────────────────────────────────────
+const CHART_DEFAULTS = {
+  responsive: true,
+  maintainAspectRatio: true,
+  plugins: { legend: { display: false }, tooltip: {
+    backgroundColor: '#18181b',
+    borderColor: '#3f3f46',
+    borderWidth: 1,
+    titleColor: '#a1a1aa',
+    bodyColor: '#e4e4e7',
+    padding: 8,
+    cornerRadius: 6,
+  }},
+  scales: {
+    x: { grid: { color: '#27272a' }, ticks: { color: '#52525b', font: { size: 11 } } },
+    y: { grid: { color: '#27272a' }, ticks: { color: '#52525b', font: { size: 11 } }, beginAtZero: true },
+  }
+};
+
+function makeBar(id, labels, data, color = '#22c55e', label = '') {
+  new Chart(document.getElementById(id), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ label, data, backgroundColor: color, borderRadius: 3, borderSkipped: false }]
+    },
+    options: CHART_DEFAULTS
+  });
+}
+
+function makeLine(id, labels, data, color = '#22c55e', label = '') {
+  new Chart(document.getElementById(id), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label, data,
+        borderColor: color,
+        backgroundColor: color + '20',
+        borderWidth: 2,
+        pointRadius: 3,
+        pointBackgroundColor: color,
+        fill: true,
+        tension: 0.3,
+      }]
+    },
+    options: CHART_DEFAULTS
+  });
+}
+
+// ── Charts ────────────────────────────────────────────────────────────────────
+function renderCharts(sessions) {
+  const byDate = {};
+  sessions.forEach(s => { byDate[s.date] = s; });
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // ── Last 30 days steps (bar) ───────────────────────────────────────────────
+  const days30labels = [], days30data = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const ds = toDateStr(d);
+    days30labels.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    days30data.push(byDate[ds]?.steps || 0);
+  }
+  makeBar('chart-30days', days30labels, days30data, '#22c55e', 'Steps');
+
+  // ── Monthly steps this year (bar) ─────────────────────────────────────────
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const year = today.getFullYear();
+  const monthData = Array(12).fill(0);
+  sessions.forEach(s => {
+    if (s.date.startsWith(String(year))) {
+      const m = parseInt(s.date.split('-')[1], 10) - 1;
+      monthData[m] += s.steps || 0;
+    }
+  });
+  const currentMonth = today.getMonth();
+  makeBar('chart-monthly', MONTHS.slice(0, currentMonth + 1), monthData.slice(0, currentMonth + 1), '#16a34a', 'Steps');
+
+  // ── Weekly distance last 12 weeks (line) ──────────────────────────────────
+  const weekLabels = [], weekDist = [];
+  for (let w = 11; w >= 0; w--) {
+    const weekEnd = new Date(today);
+    weekEnd.setDate(weekEnd.getDate() - w * 7);
+    const weekStart = new Date(weekEnd);
+    weekStart.setDate(weekStart.getDate() - 6);
+
+    let dist = 0;
+    const d = new Date(weekStart);
+    while (d <= weekEnd) {
+      dist += byDate[toDateStr(d)]?.distance || 0;
+      d.setDate(d.getDate() + 1);
+    }
+    weekLabels.push(weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    weekDist.push(Math.round(dist * 100) / 100);
+  }
+  makeLine('chart-distance', weekLabels, weekDist, '#4ade80', 'km');
+}
+
 // ── Sessions table ────────────────────────────────────────────────────────────
 function renderTable(sessions) {
-  const tbody = document.getElementById('sessions-body');
+  const tbody   = document.getElementById('sessions-body');
+  const showBtn = document.getElementById('show-more');
+  const PAGE    = 7;
+  let showing   = PAGE;
 
   if (!sessions.length) {
-    tbody.innerHTML = '<tr><td colspan="3" class="text-center text-zinc-600 py-6 text-sm">No data yet.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-zinc-600 py-6 text-sm">No data yet.</td></tr>';
     return;
   }
 
-  tbody.innerHTML = sessions.slice(0, 30).map(s => {
-    const [year, month, day] = s.date.split('-').map(Number);
-    const d = new Date(year, month - 1, day);
-    const dateStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-    const steps    = s.steps    ? Number(s.steps).toLocaleString()        : '—';
-    const calories = s.calories ? Math.round(s.calories).toLocaleString() : '—';
-    return `<tr class="border-b border-zinc-800 last:border-0 hover:bg-zinc-800/40 transition-colors">
-      <td class="py-2.5 px-1 text-zinc-300">${dateStr}</td>
-      <td class="py-2.5 px-1 text-zinc-100 font-medium">${steps}</td>
-      <td class="py-2.5 px-1 text-zinc-400">${calories}</td>
-    </tr>`;
-  }).join('');
+  function renderRows() {
+    tbody.innerHTML = sessions.slice(0, showing).map(s => {
+      const [year, month, day] = s.date.split('-').map(Number);
+      const d = new Date(year, month - 1, day);
+      const dateStr  = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+      const steps    = s.steps    ? Number(s.steps).toLocaleString()        : '—';
+      const distance = s.distance ? `${s.distance.toFixed(2)} km`           : '—';
+      const calories = s.calories ? Math.round(s.calories).toLocaleString() : '—';
+      return `<tr class="border-b border-zinc-800 last:border-0 hover:bg-zinc-800/40 transition-colors">
+        <td class="py-2.5 px-1 text-zinc-300">${dateStr}</td>
+        <td class="py-2.5 px-1 text-zinc-100 font-medium">${steps}</td>
+        <td class="py-2.5 px-1 text-zinc-400">${distance}</td>
+        <td class="py-2.5 px-1 text-zinc-400">${calories}</td>
+      </tr>`;
+    }).join('');
+
+    if (showing < sessions.length) {
+      showBtn.classList.remove('hidden');
+      showBtn.textContent = `show more (${sessions.length - showing} remaining)`;
+    } else {
+      showBtn.classList.add('hidden');
+    }
+  }
+
+  showBtn.addEventListener('click', () => { showing += PAGE; renderRows(); });
+  renderRows();
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
@@ -219,11 +338,12 @@ async function init() {
     renderFreshness(sessions);
     renderStats(sessions);
     renderHeatmap(sessions);
+    renderCharts(sessions);
     renderTable(sessions);
   } catch (err) {
     console.error(err);
     document.getElementById('sessions-body').innerHTML =
-      '<tr><td colspan="3" class="empty">Could not load data. Check your Supabase config.</td></tr>';
+      '<tr><td colspan="4" class="text-center text-zinc-600 py-6 text-sm">Could not load data.json</td></tr>';
   }
 }
 

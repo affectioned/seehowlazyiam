@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>See How Lazy I Am</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
-    /* Heatmap — fixed cell sizes and tooltip, easier outside Tailwind */
     :root {
       --cell: 17px;
       --gap:  4px;
@@ -20,11 +20,11 @@
     #heatmap        { display: flex; gap: var(--gap); min-width: max-content; }
     .heatmap-week   { display: flex; flex-direction: column; gap: var(--gap); }
     .heatmap-day    { width: var(--cell); height: var(--cell); border-radius: 2px; background: var(--g0); cursor: default; position: relative; }
-    .heatmap-day.future             { background: transparent; }
-    .heatmap-day[data-level="1"]    { background: var(--g1); }
-    .heatmap-day[data-level="2"]    { background: var(--g2); }
-    .heatmap-day[data-level="3"]    { background: var(--g3); }
-    .heatmap-day[data-level="4"]    { background: var(--g4); }
+    .heatmap-day.future          { background: transparent; }
+    .heatmap-day[data-level="1"] { background: var(--g1); }
+    .heatmap-day[data-level="2"] { background: var(--g2); }
+    .heatmap-day[data-level="3"] { background: var(--g3); }
+    .heatmap-day[data-level="4"] { background: var(--g4); }
 
     .heatmap-day:hover::after {
       content: attr(data-tip);
@@ -64,7 +64,6 @@
     .legend-cell[data-level="3"] { background: var(--g3); }
     .legend-cell[data-level="4"] { background: var(--g4); }
 
-    /* Freshness dot */
     .freshness-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
   </style>
 </head>
@@ -76,7 +75,7 @@
     <header class="mb-8">
       <h1 class="text-2xl font-bold tracking-tight">See How Lazy I Am</h1>
       <p class="text-zinc-500 text-sm mt-1">a public record of whether i moved today</p>
-      <div id="data-freshness" class="flex items-center gap-2 mt-1 text-sm text-zinc-500 hidden">
+      <div id="data-freshness" class="flex items-center gap-2 mt-1 text-sm hidden">
         <span class="freshness-dot bg-zinc-600" id="freshness-dot"></span>
         <span id="freshness-text"></span>
       </div>
@@ -112,7 +111,6 @@
           <span></span><span>Mon</span><span></span>
           <span>Wed</span><span></span><span>Fri</span><span></span>
         </div>
-
       </div>
       <div class="flex items-center gap-1.5 mt-4 justify-end">
         <span class="text-xs text-zinc-600">Less</span>
@@ -125,7 +123,30 @@
       </div>
     </div>
 
-    <!-- Table -->
+    <!-- Charts row -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+
+      <!-- Last 30 days steps -->
+      <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+        <div class="text-xs text-zinc-500 uppercase tracking-widest font-semibold mb-4">Steps — last 30 days</div>
+        <canvas id="chart-30days" height="180"></canvas>
+      </div>
+
+      <!-- Monthly steps this year -->
+      <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+        <div class="text-xs text-zinc-500 uppercase tracking-widest font-semibold mb-4">Steps — by month this year</div>
+        <canvas id="chart-monthly" height="180"></canvas>
+      </div>
+
+    </div>
+
+    <!-- Weekly distance -->
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 mb-4">
+      <div class="text-xs text-zinc-500 uppercase tracking-widest font-semibold mb-4">Distance — last 12 weeks (km)</div>
+      <canvas id="chart-distance" height="120"></canvas>
+    </div>
+
+    <!-- Evidence table -->
     <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
       <div class="text-xs text-zinc-500 uppercase tracking-widest font-semibold mb-4">Evidence</div>
       <div class="overflow-x-auto">
@@ -134,14 +155,18 @@
             <tr class="border-b border-zinc-800">
               <th class="text-left text-xs text-zinc-500 uppercase tracking-wide font-semibold pb-2 px-1">Date</th>
               <th class="text-left text-xs text-zinc-500 uppercase tracking-wide font-semibold pb-2 px-1">Steps</th>
+              <th class="text-left text-xs text-zinc-500 uppercase tracking-wide font-semibold pb-2 px-1">Distance</th>
               <th class="text-left text-xs text-zinc-500 uppercase tracking-wide font-semibold pb-2 px-1">Calories</th>
             </tr>
           </thead>
           <tbody id="sessions-body">
-            <tr><td colspan="3" class="text-center text-zinc-600 py-6 text-sm">Loading…</td></tr>
+            <tr><td colspan="4" class="text-center text-zinc-600 py-6 text-sm">Loading…</td></tr>
           </tbody>
         </table>
       </div>
+      <button id="show-more" class="mt-4 text-xs text-zinc-500 hover:text-zinc-300 transition-colors hidden">
+        show more
+      </button>
     </div>
 
   </div>

@@ -5,14 +5,16 @@ const fs   = require('fs');
 const path = require('path');
 const readline = require('readline');
 
-const STEP_RE    = /type="HKQuantityTypeIdentifierStepCount"[^/]*startDate="([^"]+)"[^/]*value="(\d+(?:\.\d+)?)"/;
-const CALORIE_RE = /type="HKQuantityTypeIdentifierActiveEnergyBurned"[^/]*startDate="([^"]+)"[^/]*value="(\d+(?:\.\d+)?)"/;
+const STEP_RE     = /type="HKQuantityTypeIdentifierStepCount"[^/]*startDate="([^"]+)"[^/]*value="(\d+(?:\.\d+)?)"/;
+const CALORIE_RE  = /type="HKQuantityTypeIdentifierActiveEnergyBurned"[^/]*startDate="([^"]+)"[^/]*value="(\d+(?:\.\d+)?)"/;
+const DISTANCE_RE = /type="HKQuantityTypeIdentifierDistanceWalkingRunning"[^/]*startDate="([^"]+)"[^/]*value="(\d+(?:\.\d+)?)"/;
 
 function toDate(str) { return str.split(' ')[0]; } // "2024-11-14 08:41:34 +0200" → "2024-11-14"
 
 async function parseXML(filePath) {
   const steps    = {};
   const calories = {};
+  const distance = {};
 
   const rl = readline.createInterface({
     input: fs.createReadStream(filePath),
@@ -30,10 +32,13 @@ async function parseXML(filePath) {
     } else if ((m = line.match(CALORIE_RE))) {
       const d = toDate(m[1]);
       calories[d] = (calories[d] || 0) + parseFloat(m[2]);
+    } else if ((m = line.match(DISTANCE_RE))) {
+      const d = toDate(m[1]);
+      distance[d] = (distance[d] || 0) + parseFloat(m[2]);
     }
   }
   process.stdout.write('\n');
-  return { steps, calories };
+  return { steps, calories, distance };
 }
 
 async function main() {
@@ -48,14 +53,15 @@ async function main() {
   }
 
   console.log('Parsing XML...');
-  const { steps, calories } = await parseXML(filePath);
+  const { steps, calories, distance } = await parseXML(filePath);
 
   const rows = Object.keys(steps)
     .sort()
     .map(date => ({
       date,
       steps:    Math.round(steps[date]),
-      calories: calories[date] ? Math.round(calories[date]) : null
+      calories: calories[date] ? Math.round(calories[date])          : null,
+      distance: distance[date] ? Math.round(distance[date] * 100) / 100 : null
     }));
 
   console.log(`Found ${rows.length} days with steps.`);
