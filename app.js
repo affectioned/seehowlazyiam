@@ -175,12 +175,10 @@ function renderTable(sessions) {
     const d = new Date(year, month - 1, day);
     const dateStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
     const steps    = s.steps    ? Number(s.steps).toLocaleString()        : '—';
-    const duration = s.duration_minutes ? `${Math.round(s.duration_minutes)} min` : '—';
     const calories = s.calories ? Math.round(s.calories).toLocaleString() : '—';
     return `<tr>
       <td>${dateStr}</td>
       <td>${steps}</td>
-      <td>${duration}</td>
       <td>${calories}</td>
     </tr>`;
   }).join('');
@@ -196,7 +194,7 @@ async function init() {
   } catch (err) {
     console.error(err);
     document.getElementById('sessions-body').innerHTML =
-      '<tr><td colspan="4" class="empty">Could not load data. Check your Supabase config.</td></tr>';
+      '<tr><td colspan="3" class="empty">Could not load data. Check your Supabase config.</td></tr>';
   }
 }
 
