@@ -40,6 +40,34 @@ function calcStreak(activeDates) {
   return streak;
 }
 
+// ── Data freshness ────────────────────────────────────────────────────────────
+function renderFreshness(sessions) {
+  if (!sessions.length) return;
+
+  const latest = sessions.reduce((a, b) => a.date > b.date ? a : b).date;
+  const [y, m, d] = latest.split('-').map(Number);
+  const latestDate = new Date(y, m - 1, d);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const days = Math.round((today - latestDate) / 86400000);
+
+  const el = document.getElementById('data-freshness');
+
+  if (days === 0) {
+    el.textContent = 'Data is up to date';
+    el.className = 'freshness fresh';
+  } else if (days === 1) {
+    el.textContent = 'Last record was yesterday';
+    el.className = 'freshness fresh';
+  } else if (days <= 7) {
+    el.textContent = `Last record was ${days} days ago`;
+    el.className = 'freshness aging';
+  } else {
+    el.textContent = `Last record was ${days} days ago — export a new Health file to update`;
+    el.className = 'freshness stale';
+  }
+}
+
 // ── Stats cards ───────────────────────────────────────────────────────────────
 function renderStats(sessions) {
   const activeDates = new Set(sessions.map(s => s.date));
@@ -180,6 +208,7 @@ function renderTable(sessions) {
 async function init() {
   try {
     const sessions = await fetchSessions();
+    renderFreshness(sessions);
     renderStats(sessions);
     renderHeatmap(sessions);
     renderTable(sessions);

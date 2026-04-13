@@ -33,6 +33,32 @@ header { margin-bottom: 2rem; }
 h1 { font-size: 1.6rem; font-weight: 700; }
 .subtitle { color: var(--muted); font-size: 0.85rem; margin-top: 0.2rem; }
 
+.freshness {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  margin-top: 0.4rem;
+  color: var(--muted);
+}
+
+.freshness::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex-shrink: 0;
+}
+
+.freshness.fresh  { color: #2d6a4f; }
+.freshness.fresh::before  { background: #52b788; }
+.freshness.aging  { color: #b5770d; }
+.freshness.aging::before  { background: #e9a825; }
+.freshness.stale  { color: #b04040; }
+.freshness.stale::before  { background: #e05252; }
+
 /* Stats */
 .stats-grid {
   display: grid;
