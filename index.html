@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Treadmill Activity</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <h1>Treadmill Activity</h1>
+      <p class="subtitle">UREVO Spacewalk E4W</p>
+    </header>
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-value" id="streak">—</span>
+        <span class="stat-label">day streak</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="week-active">—</span>
+        <span class="stat-label">days active this week</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="month-active">—</span>
+        <span class="stat-label">days active this month</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="year-active">—</span>
+        <span class="stat-label">days active this year</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>This year</h2>
+      <div class="heatmap-scroll">
+        <div class="month-labels" id="month-labels"></div>
+        <div class="heatmap" id="heatmap"></div>
+        <div class="day-labels">
+          <span></span><span>Mon</span><span></span>
+          <span>Wed</span><span></span><span>Fri</span><span></span>
+        </div>
+      </div>
+      <div class="legend">
+        <span class="legend-label">Less</span>
+        <span class="legend-cell"></span>
+        <span class="legend-cell" data-level="1"></span>
+        <span class="legend-cell" data-level="2"></span>
+        <span class="legend-cell" data-level="3"></span>
+        <span class="legend-cell" data-level="4"></span>
+        <span class="legend-label">More</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Recent sessions</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Steps</th>
+              <th>Duration</th>
+              <th>Calories</th>
+            </tr>
+          </thead>
+          <tbody id="sessions-body">
+            <tr><td colspan="4" class="empty">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
