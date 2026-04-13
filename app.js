@@ -1,8 +1,8 @@
 // ── Config ────────────────────────────────────────────────────────────────────
 // Replace these two values after you create your Supabase project.
 // Settings → API → Project URL and anon/public key.
-const SUPABASE_URL  = 'https://YOUR_PROJECT_ID.supabase.co';
-const SUPABASE_KEY  = 'YOUR_ANON_PUBLIC_KEY';
+const SUPABASE_URL  = 'https://rgvunsbvqlubddpwjeyo.supabase.co';
+const SUPABASE_KEY  = 'sb_publishable_yoHMR2HA4SZZuzvuWXjxew_eY1CJDHe';
 
 // ── Fetch ─────────────────────────────────────────────────────────────────────
 async function fetchSessions() {
