@@ -51,20 +51,28 @@ function renderFreshness(sessions) {
   today.setHours(0, 0, 0, 0);
   const days = Math.round((today - latestDate) / 86400000);
 
-  const el = document.getElementById('data-freshness');
+  const wrap = document.getElementById('data-freshness');
+  const dot  = document.getElementById('freshness-dot');
+  const text = document.getElementById('freshness-text');
+
+  wrap.classList.remove('hidden');
 
   if (days === 0) {
-    el.textContent = 'Data is up to date';
-    el.className = 'freshness fresh';
+    text.textContent = 'updated today — not lazy yet';
+    dot.className = 'freshness-dot bg-green-500';
+    text.className = 'text-green-400';
   } else if (days === 1) {
-    el.textContent = 'Last record was yesterday';
-    el.className = 'freshness fresh';
+    text.textContent = 'last updated yesterday';
+    dot.className = 'freshness-dot bg-green-500';
+    text.className = 'text-green-400';
   } else if (days <= 7) {
-    el.textContent = `Last record was ${days} days ago`;
-    el.className = 'freshness aging';
+    text.textContent = `data is ${days} days old — getting lazy about updating too`;
+    dot.className = 'freshness-dot bg-yellow-400';
+    text.className = 'text-yellow-400';
   } else {
-    el.textContent = `Last record was ${days} days ago — export a new Health file to update`;
-    el.className = 'freshness stale';
+    text.textContent = `${days} days since last update — too lazy to even export the data`;
+    dot.className = 'freshness-dot bg-red-500';
+    text.className = 'text-red-400';
   }
 }
 
@@ -186,7 +194,7 @@ function renderTable(sessions) {
   const tbody = document.getElementById('sessions-body');
 
   if (!sessions.length) {
-    tbody.innerHTML = '<tr><td colspan="4" class="empty">No sessions yet.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="3" class="text-center text-zinc-600 py-6 text-sm">No data yet.</td></tr>';
     return;
   }
 
@@ -196,10 +204,10 @@ function renderTable(sessions) {
     const dateStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
     const steps    = s.steps    ? Number(s.steps).toLocaleString()        : '—';
     const calories = s.calories ? Math.round(s.calories).toLocaleString() : '—';
-    return `<tr>
-      <td>${dateStr}</td>
-      <td>${steps}</td>
-      <td>${calories}</td>
+    return `<tr class="border-b border-zinc-800 last:border-0 hover:bg-zinc-800/40 transition-colors">
+      <td class="py-2.5 px-1 text-zinc-300">${dateStr}</td>
+      <td class="py-2.5 px-1 text-zinc-100 font-medium">${steps}</td>
+      <td class="py-2.5 px-1 text-zinc-400">${calories}</td>
     </tr>`;
   }).join('');
 }
