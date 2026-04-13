@@ -177,7 +177,7 @@ function renderHeatmap(sessions) {
   }
 
   // Build month labels with correct widths
-  const cellSize = 13 + 3; // --cell + --gap
+  const cellSize = 17 + 4; // --cell + --gap
   const totalWeeks = weekIndex;
   // Map each week index to a month label if it's the first week of that month
   for (let w = 0; w < totalWeeks; w++) {

@@ -8,8 +8,8 @@
   <style>
     /* Heatmap — fixed cell sizes and tooltip, easier outside Tailwind */
     :root {
-      --cell: 13px;
-      --gap:  3px;
+      --cell: 17px;
+      --gap:  4px;
       --g0: #27272a;
       --g1: #14532d;
       --g2: #166534;
@@ -45,7 +45,7 @@
 
     .heatmap-scroll {
       display: grid;
-      grid-template-columns: 20px 1fr;
+      grid-template-columns: 30px 1fr;
       grid-template-rows: auto auto;
       grid-template-areas: ". months" "days grid";
       align-items: start;
@@ -55,8 +55,8 @@
     #month-labels { grid-area: months; display: flex; margin-bottom: 4px; min-width: max-content; }
     #heatmap      { grid-area: grid; }
     .day-labels   { grid-area: days; display: grid; grid-template-rows: repeat(7, var(--cell)); gap: var(--gap); }
-    .day-labels span { font-size: 0.6rem; color: #52525b; display: flex; align-items: center; height: var(--cell); }
-    .month-label  { font-size: 0.68rem; color: #52525b; }
+    .day-labels span { font-size: 0.68rem; color: #52525b; display: flex; align-items: center; height: var(--cell); white-space: nowrap; }
+    .month-label  { font-size: 0.72rem; color: #52525b; }
 
     .legend-cell  { width: var(--cell); height: var(--cell); border-radius: 2px; background: var(--g0); display: inline-block; }
     .legend-cell[data-level="1"] { background: var(--g1); }
@@ -70,7 +70,7 @@
 </head>
 <body class="text-zinc-100 min-h-screen pb-16">
 
-  <div class="max-w-3xl mx-auto px-4 pt-10">
+  <div class="max-w-5xl mx-auto px-4 pt-10">
 
     <!-- Header -->
     <header class="mb-8">
@@ -112,6 +112,7 @@
           <span></span><span>Mon</span><span></span>
           <span>Wed</span><span></span><span>Fri</span><span></span>
         </div>
+
       </div>
       <div class="flex items-center gap-1.5 mt-4 justify-end">
         <span class="text-xs text-zinc-600">Less</span>
